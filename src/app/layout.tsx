@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./figma-overrides.css";
 
 export const metadata: Metadata = {
   title: "EventUdeA | Gestión de eventos universitarios",
