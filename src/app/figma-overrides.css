@@ -1,0 +1,58 @@
+/* Adaptación visual del acceso para igualar la composición de Figma Make. */
+.login-wrap {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(420px, .96fr);
+  place-items: stretch;
+  padding: 0;
+  gap: 0;
+  background: #fff;
+}
+.login-wrap::before {
+  content: "EVENTUDEA\\A Universidad de Antioquia\\A\\A Los encuentros que\\A mueven nuestra\\A universidad.\\A\\A Descubre, comparte y participa en las actividades académicas, culturales y sociales de la comunidad universitaria.";
+  white-space: pre-line;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(2rem, 5vw, 5rem);
+  min-height: 100vh;
+  color: #fff;
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(1.8rem, 3.5vw, 3.7rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -.04em;
+  background:
+    linear-gradient(180deg, rgba(9,43,29,.16) 0%, rgba(8,42,28,.9) 100%),
+    url("https://images.unsplash.com/photo-1622604647545-0cada2f34470?auto=format&fit=crop&w=1800&q=88") center / cover no-repeat;
+}
+.login-card {
+  align-self: center;
+  justify-self: center;
+  width: min(100%, 560px);
+  padding: clamp(2rem, 5vw, 5rem);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.login-card h1 { display: none; }
+.login-card .login-copy { margin-top: .5rem; }
+.login-card h3 { margin-top: .5rem; }
+.login-card .role-choice {
+  min-height: 56px;
+  border-radius: 8px;
+}
+.login-card .role-choice:hover { border-color: #8db99c; }
+.login-card .login-foot { margin-top: 1.5rem; }
+@media (max-width: 760px) {
+  .login-wrap { grid-template-columns: 1fr; }
+  .login-wrap::before {
+    min-height: 34vh;
+    padding: 1.8rem;
+    font-size: clamp(1.55rem, 7vw, 2.4rem);
+  }
+  .login-card {
+    width: 100%;
+    padding: 2rem 1.35rem 2.5rem;
+  }
+}
