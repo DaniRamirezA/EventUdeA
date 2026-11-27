@@ -32,3 +32,6 @@
 .login-disclaimer{text-align:center;font-size:.65rem;color:#849089;margin-top:13px}
 @media(max-width:850px){.login-wrap{grid-template-columns:1fr}.login-visual{min-height:38vh;padding:23px}.login-message{margin:38px 0 18px}.login-message h1{font-size:clamp(2.2rem,7vw,3.2rem)}.login-panel{min-height:auto;padding:42px 24px 50px}.login-form{max-width:480px}}
 @media(max-width:480px){.login-visual{min-height:330px}.login-message h1{font-size:2.25rem}.login-panel{padding:32px 19px 42px}}
+
+.login-error{padding:10px 12px;border:1px solid #f0caca;border-radius:8px;background:#fff5f5;color:#9b3333;font-size:.74rem;line-height:1.45}
+.login-submit:disabled{opacity:.7;cursor:wait}
