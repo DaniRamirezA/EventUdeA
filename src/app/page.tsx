@@ -18,11 +18,31 @@ const menus:Record<Role,{title:string;items:{id:string;label:string;icon:any}[]}
 };
 const fmt=(d:string)=>new Intl.DateTimeFormat("es-CO",{day:"numeric",month:"long",year:"numeric"}).format(new Date(d+"T12:00:00"));
 export default function Home(){
- const [role,setRole]=useState<Role|null>(null),[screen,setScreen]=useState("events"),[events,setEvents]=useState(initialEvents),[query,setQuery]=useState(""),[category,setCategory]=useState("Todos"),[registrations,setRegistrations]=useState<number[]>([]),[toast,setToast]=useState(""),[mobile,setMobile]=useState(false),[selected,setSelected]=useState<EventItem|null>(null);
+ const [role,setRole]=useState<Role|null>(null),[selectedRole,setSelectedRole]=useState<Role>("asistente"),[email,setEmail]=useState("ana.maria@udea.edu.co"),[password,setPassword]=useState("eventudea"),[screen,setScreen]=useState("events"),[events,setEvents]=useState(initialEvents),[query,setQuery]=useState(""),[category,setCategory]=useState("Todos"),[registrations,setRegistrations]=useState<number[]>([]),[toast,setToast]=useState(""),[mobile,setMobile]=useState(false),[selected,setSelected]=useState<EventItem|null>(null);
  const notify=(s:string)=>{setToast(s);window.setTimeout(()=>setToast(""),2800)};
  const go=(s:string)=>{setScreen(s);setMobile(false);window.scrollTo(0,0)};
  const visible=useMemo(()=>events.filter(e=>(category==="Todos"||e.category===category)&&(e.title.toLowerCase().includes(query.toLowerCase())||e.description.toLowerCase().includes(query.toLowerCase()))),[events,category,query]);
- if(!role) return <main className="login-wrap"><div className="login-card"><div className="brand-mark">e</div><p className="eyebrow">UNIVERSIDAD DE ANTIOQUIA</p><h1>La vida universitaria<br/><em>sucede aquí.</em></h1><p className="muted login-copy">Descubre eventos, participa en actividades y conecta con tu comunidad universitaria.</p><h3>Ingresa a EventUdeA</h3><p className="muted small">Selecciona el perfil para explorar el prototipo.</p><div className="role-grid">{(["asistente","organizador","administrador"] as Role[]).map(r=><button className="role-choice" key={r} onClick={()=>{setRole(r);setScreen(r==="asistente"?"events":"dashboard")}}><span>{r==="asistente"?"◉":r==="organizador"?"▣":"◇"}</span><strong>{r[0].toUpperCase()+r.slice(1)}</strong><small>{r==="asistente"?"Explora e inscríbete":r==="organizador"?"Administra tus eventos":"Gestiona la plataforma"}</small><ArrowRight size={17}/></button>)}</div><p className="login-foot">Plataforma centralizada de gestión de eventos universitarios</p></div></main>;
+ if(!role) return <main className="login-wrap">
+  <section className="login-visual">
+    <div className="login-brand"><span className="login-brand-icon"><CalendarDays size={20}/></span><span><b>EventUdeA</b><small>Universidad de Antioquia</small></span></div>
+    <div className="login-message"><span className="login-tag">Plataforma universitaria</span><h1>Los encuentros que<br/>mueven nuestra<br/>universidad.</h1><p>Descubre, organiza y gestiona experiencias académicas en un solo lugar.</p></div>
+    <span className="login-location">Universidad de Antioquia · Medellín</span>
+  </section>
+  <section className="login-panel">
+    <div className="login-form">
+      <p className="eyebrow">BIENVENIDO A EVENTUDEA</p>
+      <h2>Inicia sesión</h2>
+      <p className="muted login-subtitle">Selecciona un perfil para explorar el prototipo.</p>
+      <div className="role-grid">{(["asistente","organizador","administrador"] as Role[]).map(r=><button type="button" className={selectedRole===r?"role-choice selected":"role-choice"} key={r} onClick={()=>setSelectedRole(r)}><span className="role-icon">{r==="asistente"?<Users size={19}/>:r==="organizador"?<CalendarDays size={19}/>:<ShieldCheck size={19}/>}</span><span className="role-copy"><strong>{r[0].toUpperCase()+r.slice(1)}</strong><small>{r==="asistente"?"Explora e inscríbete":r==="organizador"?"Crea y gestiona":"Supervisa la plataforma"}</small></span>{selectedRole===r&&<CheckCircle2 className="role-check" size={17}/>}</button>)}</div>
+      <form className="login-fields" onSubmit={e=>{e.preventDefault();if(!email.trim()||!password.trim())return notify("Ingresa tu correo y contraseña.");setRole(selectedRole);setScreen(selectedRole==="asistente"?"events":"dashboard");}}>
+        <label>Correo institucional<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="nombre@udea.edu.co" required/></label>
+        <label>Contraseña<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Ingresa tu contraseña" required/></label>
+        <button className="btn primary login-submit">Continuar como {selectedRole[0].toUpperCase()+selectedRole.slice(1)} <ArrowRight size={17}/></button>
+      </form>
+      <p className="login-disclaimer">Acceso simulado para fines de demostración académica.</p>
+    </div>
+  </section>
+</main>;
  const nav=menus[role];
  const register=(e:EventItem)=>{if(registrations.includes(e.id))return notify("Ya tienes una inscripción para este evento.");if(e.registered>=e.capacity)return notify("Este evento no tiene cupos disponibles.");setRegistrations(v=>[...v,e.id]);setEvents(v=>v.map(x=>x.id===e.id?{...x,registered:x.registered+1}:x));notify("¡Inscripción confirmada!");setSelected(null);go("registrations")};
  const title=nav.items.find(i=>i.id===screen)?.label??(screen==="detail"?"Detalle del evento":screen==="approvals"?"Aprobaciones":screen==="create"?"Crear evento":"Panel de gestión");
