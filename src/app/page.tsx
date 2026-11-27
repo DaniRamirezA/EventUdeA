@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { CalendarDays, LayoutDashboard, Plus, TicketCheck, QrCode, BarChart3, ListChecks, Tag, MapPin, FileBadge, LogOut, Search, Menu, X, ArrowRight, Clock3, Users, CheckCircle2, ShieldCheck } from "lucide-react";
 
 type Role = "asistente" | "organizador" | "administrador";
@@ -18,7 +19,7 @@ const menus:Record<Role,{title:string;items:{id:string;label:string;icon:any}[]}
 };
 const fmt=(d:string)=>new Intl.DateTimeFormat("es-CO",{day:"numeric",month:"long",year:"numeric"}).format(new Date(d+"T12:00:00"));
 export default function Home(){
- const [role,setRole]=useState<Role|null>(null),[selectedRole,setSelectedRole]=useState<Role>("asistente"),[email,setEmail]=useState("ana.maria@udea.edu.co"),[password,setPassword]=useState("eventudea"),[screen,setScreen]=useState("events"),[events,setEvents]=useState(initialEvents),[query,setQuery]=useState(""),[category,setCategory]=useState("Todos"),[registrations,setRegistrations]=useState<number[]>([]),[toast,setToast]=useState(""),[mobile,setMobile]=useState(false),[selected,setSelected]=useState<EventItem|null>(null);
+ const [role,setRole]=useState<Role|null>(null),[selectedRole,setSelectedRole]=useState<Role>("asistente"),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[loginError,setLoginError]=useState(""),[loginLoading,setLoginLoading]=useState(false),[screen,setScreen]=useState("events"),[events,setEvents]=useState(initialEvents),[query,setQuery]=useState(""),[category,setCategory]=useState("Todos"),[registrations,setRegistrations]=useState<number[]>([]),[toast,setToast]=useState(""),[mobile,setMobile]=useState(false),[selected,setSelected]=useState<EventItem|null>(null);
  const notify=(s:string)=>{setToast(s);window.setTimeout(()=>setToast(""),2800)};
  const go=(s:string)=>{setScreen(s);setMobile(false);window.scrollTo(0,0)};
  const visible=useMemo(()=>events.filter(e=>(category==="Todos"||e.category===category)&&(e.title.toLowerCase().includes(query.toLowerCase())||e.description.toLowerCase().includes(query.toLowerCase()))),[events,category,query]);
@@ -34,10 +35,10 @@ export default function Home(){
       <h2>Inicia sesión</h2>
       <p className="muted login-subtitle">Selecciona un perfil para explorar el prototipo.</p>
       <div className="role-grid">{(["asistente","organizador","administrador"] as Role[]).map(r=><button type="button" className={selectedRole===r?"role-choice selected":"role-choice"} key={r} onClick={()=>setSelectedRole(r)}><span className="role-icon">{r==="asistente"?<Users size={19}/>:r==="organizador"?<CalendarDays size={19}/>:<ShieldCheck size={19}/>}</span><span className="role-copy"><strong>{r[0].toUpperCase()+r.slice(1)}</strong><small>{r==="asistente"?"Explora e inscríbete":r==="organizador"?"Crea y gestiona":"Supervisa la plataforma"}</small></span>{selectedRole===r&&<CheckCircle2 className="role-check" size={17}/>}</button>)}</div>
-      <form className="login-fields" onSubmit={e=>{e.preventDefault();if(!email.trim()||!password.trim())return notify("Ingresa tu correo y contraseña.");setRole(selectedRole);setScreen(selectedRole==="asistente"?"events":"dashboard");}}>
+      <form className="login-fields" onSubmit={async e=>{e.preventDefault();setLoginError("");setLoginLoading(true);try{const supabase=createClient();const {data,error}=await supabase.auth.signInWithPassword({email:email.trim(),password});if(error)throw error;const {data:profile,error:profileError}=await supabase.from("profiles").select("role").eq("id",data.user.id).single();if(profileError)throw profileError;if(profile.role!==selectedRole){await supabase.auth.signOut();throw new Error("Tu cuenta no tiene el perfil seleccionado. Selecciona el perfil asignado a tu usuario.");}setRole(profile.role as Role);setScreen(profile.role==="asistente"?"events":"dashboard");}catch(err){setLoginError(err instanceof Error?err.message:"No fue posible iniciar sesión. Verifica tu conexión con Supabase.");}finally{setLoginLoading(false);}}}>
         <label>Correo institucional<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="nombre@udea.edu.co" required/></label>
         <label>Contraseña<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Ingresa tu contraseña" required/></label>
-        <button className="btn primary login-submit">Continuar como {selectedRole[0].toUpperCase()+selectedRole.slice(1)} <ArrowRight size={17}/></button>
+        {loginError&&<p className="login-error" role="alert">{loginError}</p>}<button className="btn primary login-submit" disabled={loginLoading}>{loginLoading?"Verificando acceso…":<>Continuar como {selectedRole[0].toUpperCase()+selectedRole.slice(1)} <ArrowRight size={17}/></>}</button>
       </form>
       <p className="login-disclaimer">Acceso simulado para fines de demostración académica.</p>
     </div>
